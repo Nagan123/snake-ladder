@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import Board from './Board';
 import Dice from './Dice';
 import Player from './Player';
@@ -14,46 +14,41 @@ const Game = () => {
     { name: 'p2', position: 0, scores: [] },
   ]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
+  const [roll, setRoll] = useState(null);
   const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState(null);
 
   const rollDice = () => {
-    return Math.floor(Math.random() * 6) + 1;
+    if (gameOver) return;  // Prevent further dice rolls if the game is over
+    const newRoll = Math.floor(Math.random() * 6) + 1;
+    setRoll(newRoll);
+    movePlayer(newRoll);
   };
 
-  const movePlayer = (playerIndex, roll) => {
+  const movePlayer = (diceRoll) => {
     setPlayers(prevPlayers => {
       const newPlayers = [...prevPlayers];
-      let newPosition = newPlayers[playerIndex].position + roll;
+      let newPosition = newPlayers[currentPlayerIndex].position + diceRoll;
       if (snakesAndLadders.snakes[newPosition]) {
         newPosition = snakesAndLadders.snakes[newPosition];
       } else if (snakesAndLadders.ladders[newPosition]) {
         newPosition = snakesAndLadders.ladders[newPosition];
       }
-      newPlayers[playerIndex].position = newPosition;
-      newPlayers[playerIndex].scores.push(roll);
+      newPlayers[currentPlayerIndex].position = newPosition;
+      newPlayers[currentPlayerIndex].scores.push(diceRoll);
+
+      if (newPosition >= 100) {
+        setGameOver(true);
+        setWinner(newPlayers[currentPlayerIndex].name);
+      }
+
       return newPlayers;
     });
-  };
 
-  const checkForWin = (position) => {
-    if (position >= 100) {
-      setGameOver(true);
-    }
-  };
-
-  const takeTurn = () => {
-    if (gameOver) return;
-    const roll = rollDice();
-    movePlayer(currentPlayerIndex, roll);
-    checkForWin(players[currentPlayerIndex].position);
-    setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
-  };
-
-  useEffect(() => {
     if (!gameOver) {
-      setTimeout(takeTurn, 1000);
+      setCurrentPlayerIndex((prevIndex) => (prevIndex + 1) % players.length);
     }
-  }, [currentPlayerIndex, gameOver]);
+  };
 
   return (
     <div>
@@ -63,7 +58,8 @@ const Game = () => {
           <Player key={index} player={player} />
         ))}
       </div>
-      {gameOver && <div>Game Over! {players[currentPlayerIndex].name} wins!</div>}
+      <Dice roll={roll} onRollDice={rollDice} />
+      {gameOver && <div>Game Over! {winner} wins!</div>}
     </div>
   );
 };
