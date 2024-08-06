@@ -1,0 +1,35 @@
+.board{
+    display:flex;
+    flex-wrap: wrap;
+    width: 400px;
+    height: 40px;
+    border: 2px solid #000;
+}
+.square{
+    width: 10%;
+    height: 10%;
+    border: 1px solid #ccc;
+    position: relative;
+}
+.player{
+    width: 20px;
+    height: 20px;
+    border-radius:50%;
+    position: absolute;
+}
+.player-1{
+    background-color: red;
+    top:5px;
+    left: 5px;
+}
+.player-2{
+    background-color: blue;
+    top:5px;
+    left: 5px;
+}
+.snake{
+    background-color: #fdd;
+}
+.ladder{
+    background-color: rgb(50, 179, 50);
+}
